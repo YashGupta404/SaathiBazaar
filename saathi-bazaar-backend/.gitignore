@@ -1,0 +1,5 @@
+
+# saathi-bazaar-backend/.gitignore
+node_modules/
+.env
+saathi-bazaar-hackathon-2025-firebase-adminsdk-fbsvc-0530993899.json
