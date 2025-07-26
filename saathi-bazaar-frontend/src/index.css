@@ -1,13 +1,103 @@
 /* saathi-bazaar-frontend/src/index.css */
-/* These three @tailwind directives are crucial for including Tailwind's core styles, components, and utility classes. */
-/* They must be placed at the very top of your main CSS file for Tailwind to work correctly. */
-@tailwind base;       /* Includes Tailwind's base styles (resets default browser styles for consistency across browsers) */
-@tailwind components; /* Includes Tailwind's component-specific styles (e.g., for pre-defined button or card styles) */
-@tailwind utilities;  /* Includes all of Tailwind's extensive utility classes (e.g., 'flex', 'text-blue-500', 'p-4', 'mb-2') */
+/* Basic CSS for your app after removing Tailwind. */
+/* This provides a minimal reset and ensures consistent font. */
 
-/* You can add any custom global CSS styles specific to your app below these lines if needed. */
-/* For example:
-   body {
-     font-family: 'Roboto', sans-serif;
-   }
-*/
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f3f4f6; /* Light gray background for consistency */
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Basic styles for form elements */
+input, select, button {
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box; /* Ensures padding doesn't increase width */
+}
+
+button {
+  cursor: pointer;
+  background-color: #3b82f6; /* A basic blue color */
+  color: white;
+  border: none;
+}
+
+button:hover {
+  background-color: #2563eb; /* A darker blue on hover */
+}
+
+/* Basic card/container styles */
+.card {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Basic flexbox for centering */
+.flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh; /* Full height */
+}
+
+/* Basic header styles */
+.app-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: #1d4ed8; /* Darker blue */
+    color: white;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.app-header .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+    text-decoration: none;
+}
+
+.app-header nav ul {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.app-header nav ul li {
+    margin-left: 1rem;
+}
+
+.app-header nav ul li a, .app-header nav ul li button {
+    color: white;
+    text-decoration: none;
+    background: none;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+}
+
+.app-header nav ul li a:hover, .app-header nav ul li button:hover {
+    text-decoration: underline;
+    background-color: rgba(255,255,255,0.1);
+}
