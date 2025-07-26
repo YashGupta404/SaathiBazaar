@@ -8,8 +8,7 @@ const MandiWholesaler = require('../models/MandiWholesaler'); // For mandi shop 
 
 // Access your Gemini API Key from your .env file and initialize the AI model
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY); // Uses API key from .env
-const model = genAI.getGenerativeModel({ model: "gemini-pro" }); // Specifies which Gemini model to use
-
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 module.exports = (auth) => { // 'auth' object from Firebase Admin SDK (passed from server.js)
   const router = express.Router(); // Creates an Express Router
 
