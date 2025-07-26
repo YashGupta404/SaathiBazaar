@@ -1,0 +1,13 @@
+/* saathi-bazaar-frontend/src/index.css */
+/* These three @tailwind directives are crucial for including Tailwind's core styles, components, and utility classes. */
+/* They must be placed at the very top of your main CSS file for Tailwind to work correctly. */
+@tailwind base;       /* Includes Tailwind's base styles (resets default browser styles for consistency across browsers) */
+@tailwind components; /* Includes Tailwind's component-specific styles (e.g., for pre-defined button or card styles) */
+@tailwind utilities;  /* Includes all of Tailwind's extensive utility classes (e.g., 'flex', 'text-blue-500', 'p-4', 'mb-2') */
+
+/* You can add any custom global CSS styles specific to your app below these lines if needed. */
+/* For example:
+   body {
+     font-family: 'Roboto', sans-serif;
+   }
+*/
