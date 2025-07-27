@@ -99,80 +99,500 @@ function VendorToVendor() {
 
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f3f4f6' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: 'var(--forest-50)', transition: 'all 0.3s ease' }}>
       <Header />
       <div style={{ maxWidth: '960px', margin: '0 auto', padding: '16px', paddingTop: '80px' }}>
-        <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '24px', textAlign: 'center', color: '#2563eb' }}>Vendor-to-Vendor Exchange</h1>
+        {/* Animated Header */}
+        <div style={{ textAlign: 'center', marginBottom: '32px', opacity: 1, transform: 'translateY(0)', transition: 'all 0.6s ease' }}>
+          <h1 style={{ 
+            fontSize: '2.5rem', 
+            fontWeight: 'bold', 
+            marginBottom: '8px', 
+            color: 'var(--emerald-700)',
+            textShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            background: 'linear-gradient(135deg, var(--emerald-600), var(--forest-600))',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text'
+          }}>
+            🔄 Vendor-to-Vendor Exchange
+          </h1>
+          <p style={{ color: 'var(--emerald-600)', fontSize: '1.1rem', opacity: '0.9' }}>
+            Turn surplus into opportunity • Connect with nearby vendors
+          </p>
+        </div>
 
         {/* Sell Surplus Section */}
-        <div className="card" style={{ marginBottom: '32px' }}>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '16px' }}>Sell Your Surplus</h2>
+        <div className="card" style={{ 
+          marginBottom: '32px',
+          background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(34, 197, 94, 0.05))',
+          border: '2px solid var(--emerald-200)',
+          borderRadius: '16px',
+          boxShadow: '0 8px 32px rgba(16, 185, 129, 0.15)',
+          transition: 'all 0.3s ease',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          <div style={{ 
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '4px',
+            background: 'linear-gradient(90deg, var(--emerald-400), var(--forest-400))',
+            borderRadius: '16px 16px 0 0'
+          }}></div>
+          <h2 style={{ 
+            fontSize: '1.8rem', 
+            fontWeight: 'bold', 
+            marginBottom: '20px',
+            color: 'var(--emerald-700)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
+          }}>
+            <span style={{ fontSize: '1.5rem' }}>📦</span>
+            Sell Your Surplus
+          </h2>
           <form onSubmit={handleSubmitSurplus}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px', marginBottom: '16px' }}>
-              <div>
-                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '0.875rem' }}>Item Name</label>
-                <select value={itemName} onChange={(e) => { setItemName(e.target.value); setSuggestedPrice(''); }}
-                        required style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+              <div style={{ position: 'relative' }}>
+                <label style={{ 
+                  display: 'block', 
+                  marginBottom: '8px', 
+                  fontWeight: '600', 
+                  fontSize: '0.95rem',
+                  color: 'var(--emerald-700)',
+                  transition: 'all 0.3s ease'
+                }}>
+                  🥬 Item Name
+                </label>
+                <select 
+                  value={itemName} 
+                  onChange={(e) => { setItemName(e.target.value); setSuggestedPrice(''); }}
+                  required 
+                  style={{ 
+                    width: '100%', 
+                    padding: '12px 16px', 
+                    border: '2px solid var(--emerald-200)', 
+                    borderRadius: '12px',
+                    fontSize: '1rem',
+                    transition: 'all 0.3s ease',
+                    background: 'white',
+                    boxShadow: '0 2px 8px rgba(16, 185, 129, 0.1)'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = 'var(--emerald-400)'}
+                  onBlur={(e) => e.target.style.borderColor = 'var(--emerald-200)'}
+                >
                   <option value="">Select Item</option>
-                  <option value="Tomato">Tomato</option>
-                  <option value="Onion">Onion</option>
-                  <option value="Potato">Potato</option>
-                  <option value="Coriander">Coriander</option>
-                  <option value="Dhaniya">Dhaniya</option>
+                  <option value="Tomato">🍅 Tomato</option>
+                  <option value="Onion">🧅 Onion</option>
+                  <option value="Potato">🥔 Potato</option>
+                  <option value="Coriander">🌿 Coriander</option>
+                  <option value="Dhaniya">🌱 Dhaniya</option>
                 </select>
               </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '0.875rem' }}>Quantity</label>
-                <input type="number" value={quantity} onChange={(e) => { setQuantity(e.target.value); setSuggestedPrice(''); }}
-                       required style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+              <div style={{ position: 'relative' }}>
+                <label style={{ 
+                  display: 'block', 
+                  marginBottom: '8px', 
+                  fontWeight: '600', 
+                  fontSize: '0.95rem',
+                  color: 'var(--emerald-700)'
+                }}>
+                  📊 Quantity
+                </label>
+                <input 
+                  type="number" 
+                  value={quantity} 
+                  onChange={(e) => { setQuantity(e.target.value); setSuggestedPrice(''); }}
+                  required 
+                  style={{ 
+                    width: '100%', 
+                    padding: '12px 16px', 
+                    border: '2px solid var(--emerald-200)', 
+                    borderRadius: '12px',
+                    fontSize: '1rem',
+                    transition: 'all 0.3s ease',
+                    background: 'white',
+                    boxShadow: '0 2px 8px rgba(16, 185, 129, 0.1)'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = 'var(--emerald-400)'}
+                  onBlur={(e) => e.target.style.borderColor = 'var(--emerald-200)'}
+                  placeholder="Enter quantity"
+                />
               </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '20px', marginBottom: '20px' }}>
               <div>
-                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '0.875rem' }}>Unit</label>
-                <select value={unit} onChange={(e) => setUnit(e.target.value)}
-                        style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}>
-                  <option value="kg">kg</option>
-                  <option value="bunch">bunch</option>
-                  <option value="piece">piece</option>
+                <label style={{ 
+                  display: 'block', 
+                  marginBottom: '8px', 
+                  fontWeight: '600', 
+                  fontSize: '0.95rem',
+                  color: 'var(--emerald-700)'
+                }}>
+                  ⚖️ Unit
+                </label>
+                <select 
+                  value={unit} 
+                  onChange={(e) => setUnit(e.target.value)}
+                  style={{ 
+                    width: '100%', 
+                    padding: '12px 16px', 
+                    border: '2px solid var(--emerald-200)', 
+                    borderRadius: '12px',
+                    fontSize: '1rem',
+                    transition: 'all 0.3s ease',
+                    background: 'white',
+                    boxShadow: '0 2px 8px rgba(16, 185, 129, 0.1)'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = 'var(--emerald-400)'}
+                  onBlur={(e) => e.target.style.borderColor = 'var(--emerald-200)'}
+                >
+                  <option value="kg">📦 kg</option>
+                  <option value="bunch">🌾 bunch</option>
+                  <option value="piece">🔢 piece</option>
                 </select>
               </div>
+              <div style={{ position: 'relative' }}>
+                <label style={{ 
+                  display: 'block', 
+                  marginBottom: '8px', 
+                  fontWeight: '600', 
+                  fontSize: '0.95rem',
+                  color: 'var(--emerald-700)'
+                }}>
+                  💰 Your Price (₹)
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <input 
+                    type="number" 
+                    value={price} 
+                    onChange={(e) => setPrice(e.target.value)}
+                    required 
+                    style={{ 
+                      width: '100%', 
+                      padding: '12px 16px', 
+                      border: '2px solid var(--emerald-200)', 
+                      borderRadius: '12px',
+                      fontSize: '1rem',
+                      transition: 'all 0.3s ease',
+                      background: 'white',
+                      boxShadow: '0 2px 8px rgba(16, 185, 129, 0.1)',
+                      paddingRight: '50px'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = 'var(--emerald-400)'}
+                    onBlur={(e) => e.target.style.borderColor = 'var(--emerald-200)'}
+                    placeholder="Enter price"
+                  />
+                  <span style={{ 
+                    position: 'absolute',
+                    right: '16px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    color: 'var(--emerald-600)',
+                    fontWeight: 'bold'
+                  }}>₹</span>
+                </div>
+                <button 
+                  type="button" 
+                  onClick={handlePriceSuggestion}
+                  style={{ 
+                    background: 'linear-gradient(135deg, var(--mint-400), var(--emerald-400))', 
+                    color: 'white', 
+                    fontSize: '0.875rem', 
+                    fontWeight: '600',
+                    padding: '8px 16px', 
+                    borderRadius: '8px', 
+                    border: 'none', 
+                    cursor: 'pointer', 
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    marginTop: '12px',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 4px 12px rgba(20, 184, 166, 0.3)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'translateY(-2px)';
+                    e.target.style.boxShadow = '0 6px 20px rgba(20, 184, 166, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'translateY(0)';
+                    e.target.style.boxShadow = '0 4px 12px rgba(20, 184, 166, 0.3)';
+                  }}
+                >
+                  🤖 AI Price Suggestion
+                </button>
+                {suggestedPrice && (
+                  <div style={{ 
+                    marginTop: '12px',
+                    padding: '12px',
+                    background: 'linear-gradient(135deg, var(--emerald-50), var(--forest-50))',
+                    border: '2px solid var(--emerald-200)',
+                    borderRadius: '8px',
+                    animation: 'fadeIn 0.3s ease'
+                  }}>
+                    <p style={{ 
+                      fontSize: '0.95rem', 
+                      color: 'var(--emerald-700)', 
+                      margin: 0,
+                      fontWeight: '600',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}>
+                      💡 AI Suggestion: <span style={{ fontSize: '1.1rem', color: 'var(--emerald-600)' }}>₹{suggestedPrice}</span>
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '0.875rem' }}>Your Price (₹)</label>
-              <input type="number" value={price} onChange={(e) => setPrice(e.target.value)}
-                     required style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
-              <button type="button" onClick={handlePriceSuggestion}
-                      style={{ background: '#e5e7eb', color: '#1f2937', fontSize: '0.875rem', padding: '6px 12px', borderRadius: '4px', border: 'none', cursor: 'pointer', display: 'inline-block', width: 'auto', marginTop: '8px' }}>
-                Suggest Price (AI)
-              </button>
-              {suggestedPrice && <p style={{ fontSize: '0.875rem', color: '#16a34a', marginTop: '4px' }}>AI Suggestion: ₹{suggestedPrice}</p>}
-            </div>
-            <button type="submit" style={{ background: '#3b82f6', color: 'white', padding: '10px', borderRadius: '4px', border: 'none', cursor: 'pointer', width: '100%' }}>
+            <button 
+              type="submit" 
+              style={{ 
+                background: 'linear-gradient(135deg, var(--emerald-500), var(--forest-500))', 
+                color: 'white', 
+                padding: '16px 32px', 
+                borderRadius: '12px', 
+                border: 'none', 
+                cursor: 'pointer', 
+                width: '100%',
+                fontSize: '1.1rem',
+                fontWeight: '600',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 4px 16px rgba(16, 185, 129, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '12px'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-2px)';
+                e.target.style.boxShadow = '0 6px 24px rgba(16, 185, 129, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = '0 4px 16px rgba(16, 185, 129, 0.3)';
+              }}
+            >
+              <span style={{ fontSize: '1.2rem' }}>📝</span>
               List Surplus
             </button>
           </form>
         </div>
 
-        {/* My Listed Surpluses Section (New) */}
-        <div className="card" style={{ marginBottom: '32px' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '16px' }}>My Listed Surpluses</h2>
-            {loadingSurplus ? (
-                <p style={{ textAlign: 'center', color: '#4b5563' }}>Loading your listed surpluses...</p>
-            ) : myListedSurpluses.length === 0 ? (
-                <p style={{ textAlign: 'center', color: '#4b5563' }}>No surpluses listed by you yet.</p>
+        {/* My Listed Surpluses Section */}
+        <div className="card" style={{ 
+          marginBottom: '32px',
+          background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.05), rgba(20, 184, 166, 0.05))',
+          border: '2px solid var(--forest-200)',
+          borderRadius: '16px',
+          boxShadow: '0 8px 32px rgba(34, 197, 94, 0.15)',
+          transition: 'all 0.3s ease',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          <div style={{ 
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '4px',
+            background: 'linear-gradient(90deg, var(--forest-400), var(--mint-400))',
+            borderRadius: '16px 16px 0 0'
+          }}></div>
+          <h2 style={{ 
+            fontSize: '1.8rem', 
+            fontWeight: 'bold', 
+            marginBottom: '20px',
+            color: 'var(--forest-700)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
+          }}>
+            <span style={{ fontSize: '1.5rem' }}>📋</span>
+            My Listed Surpluses
+          </h2>
+          {loadingSurplus ? (
+            <div style={{ 
+              textAlign: 'center', 
+              padding: '40px 20px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '16px'
+            }}>
+              <div style={{ 
+                width: '50px',
+                height: '50px',
+                border: '4px solid var(--forest-200)',
+                borderTop: '4px solid var(--forest-500)',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite'
+              }}></div>
+              <p style={{ 
+                color: 'var(--forest-600)', 
+                fontSize: '1.1rem',
+                fontWeight: '500'
+              }}>
+                Loading your listed surpluses...
+              </p>
+            </div>
+          ) : myListedSurpluses.length === 0 ? (
+            <div style={{ 
+              textAlign: 'center', 
+              padding: '40px 20px',
+              background: 'rgba(255, 255, 255, 0.7)',
+              borderRadius: '12px',
+              border: '2px dashed var(--forest-300)'
+            }}>
+              <div style={{ fontSize: '3rem', marginBottom: '16px' }}>📦</div>
+              <p style={{ 
+                color: 'var(--forest-600)', 
+                fontSize: '1.1rem',
+                fontWeight: '500',
+                marginBottom: '8px'
+              }}>
+                No surpluses listed yet
+              </p>
+              <p style={{ 
+                color: 'var(--forest-500)', 
+                fontSize: '0.95rem'
+              }}>
+                Start by listing your first surplus above!
+              </p>
+            </div>
             ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
-                    {myListedSurpluses.map((item) => (
-                        <div key={item.id} className="card" style={{ border: '1px solid #e5e7eb', backgroundColor: '#e0ffe0' }}> {/* Light green background for own items */}
-                            <h3 style={{ fontSize: '1.125rem', fontWeight: 'bold', color: '#1f2937' }}>{item.name}</h3>
-                            <p style={{ color: '#4b5563' }}>Quantity: {item.quantity} {item.unit}</p>
-                            <p style={{ color: '#16a34a', fontSize: '1.25rem', fontWeight: 'bold' }}>₹{item.price}</p>
-                            <p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '8px' }}>
-                                Listed by: {item.listedByShop || item.listedByName} (Me)
-                            </p>
-                            {/* Conceptual orders for own listed surpluses */}
-                            <p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '8px' }}>
-                                Orders: <span style={{ color: '#ef4444', fontWeight: 'bold' }}>No new orders yet</span> (Conceptual)
-                            </p>
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+                gap: '20px',
+                animation: 'fadeIn 0.5s ease'
+              }}>
+                {myListedSurpluses.map((item, index) => (
+                  <div 
+                    key={item.id} 
+                    className="card" 
+                    style={{ 
+                      border: '2px solid var(--emerald-200)', 
+                      background: 'linear-gradient(135deg, var(--emerald-50), var(--forest-50))',
+                      borderRadius: '16px',
+                      boxShadow: '0 8px 24px rgba(16, 185, 129, 0.15)',
+                      transition: 'all 0.3s ease',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      animation: `fadeIn 0.5s ease ${index * 0.1}s both`
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-4px)';
+                      e.currentTarget.style.boxShadow = '0 12px 32px rgba(16, 185, 129, 0.25)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = '0 8px 24px rgba(16, 185, 129, 0.15)';
+                    }}
+                  >
+                    <div style={{ 
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      height: '4px',
+                      background: 'linear-gradient(90deg, var(--emerald-400), var(--forest-400))'
+                    }}></div>
+                    <div style={{ 
+                      position: 'absolute',
+                      top: '12px',
+                      right: '12px',
+                      background: 'var(--emerald-500)',
+                      color: 'white',
+                      padding: '4px 8px',
+                      borderRadius: '12px',
+                      fontSize: '0.75rem',
+                      fontWeight: '600'
+                    }}>
+                      MY LISTING
+                    </div>
+                    <h3 style={{ 
+                      fontSize: '1.3rem', 
+                      fontWeight: 'bold', 
+                      color: 'var(--emerald-700)',
+                      marginBottom: '12px',
+                      marginTop: '8px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}>
+                      <span style={{ fontSize: '1.5rem' }}>
+                        {item.name === 'Tomato' ? '🍅' : 
+                         item.name === 'Onion' ? '🧅' : 
+                         item.name === 'Potato' ? '🥔' : 
+                         item.name === 'Coriander' ? '🌿' : 
+                         item.name === 'Dhaniya' ? '🌱' : '🥬'}
+                      </span>
+                      {item.name}
+                    </h3>
+                    <div style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center',
+                      marginBottom: '12px'
+                    }}>
+                      <p style={{ 
+                        color: 'var(--emerald-600)', 
+                        fontSize: '1.1rem',
+                        fontWeight: '600',
+                        margin: 0
+                      }}>
+                        📦 {item.quantity} {item.unit}
+                      </p>
+                      <p style={{ 
+                        color: 'var(--forest-600)', 
+                        fontSize: '1.4rem', 
+                        fontWeight: 'bold',
+                        margin: 0
+                      }}>
+                        ₹{item.price}
+                      </p>
+                    </div>
+                    <div style={{ 
+                      padding: '12px',
+                      background: 'rgba(255, 255, 255, 0.7)',
+                      borderRadius: '8px',
+                      marginBottom: '12px'
+                    }}>
+                      <p style={{ 
+                        fontSize: '0.9rem', 
+                        color: 'var(--emerald-600)', 
+                        margin: '0 0 8px 0',
+                        fontWeight: '500'
+                      }}>
+                        🏪 Listed by: {item.listedByShop || item.listedByName} (You)
+                      </p>
+                      <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '8px'
+                      }}>
+                        <span style={{ 
+                          width: '8px',
+                          height: '8px',
+                          borderRadius: '50%',
+                          background: 'var(--emerald-400)',
+                          animation: 'pulse 2s infinite'
+                        }}></span>
+                        <p style={{ 
+                          fontSize: '0.9rem', 
+                          color: 'var(--emerald-600)', 
+                          margin: 0,
+                          fontWeight: '500'
+                        }}>
+                          📋 Orders: <span style={{ color: 'var(--forest-500)' }}>Awaiting buyers</span>
+                        </p>
+                      </div>
+                    </div>
                             {/* >>>>>>> HIDDEN BUTTONS FOR OWN LISTINGS <<<<<<< */}
                             {/* No buttons rendered if it's the current user's item */}
                         </div>
@@ -182,30 +602,256 @@ function VendorToVendor() {
         </div>
 
 
-        {/* Buy Surplus Section (Existing) */}
-        <div className="card">
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '16px' }}>Buy Surplus from Nearby Vendors</h2>
+        {/* Buy Surplus Section */}
+        <div className="card" style={{ 
+          background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05))',
+          border: '2px solid #e0e7ff',
+          borderRadius: '16px',
+          boxShadow: '0 8px 32px rgba(99, 102, 241, 0.15)',
+          transition: 'all 0.3s ease',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          <div style={{ 
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '4px',
+            background: 'linear-gradient(90deg, #6366f1, #8b5cf6)',
+            borderRadius: '16px 16px 0 0'
+          }}></div>
+          <h2 style={{ 
+            fontSize: '1.8rem', 
+            fontWeight: 'bold', 
+            marginBottom: '20px',
+            color: '#4f46e5',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
+          }}>
+            <span style={{ fontSize: '1.5rem' }}>🛒</span>
+            Buy Surplus from Nearby Vendors
+          </h2>
           {loadingSurplus ? (
-            <p style={{ textAlign: 'center', color: '#4b5563' }}>Loading nearby surpluses...</p>
+            <div style={{ 
+              textAlign: 'center', 
+              padding: '40px 20px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '16px'
+            }}>
+              <div style={{ 
+                width: '50px',
+                height: '50px',
+                border: '4px solid #e0e7ff',
+                borderTop: '4px solid #6366f1',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite'
+              }}></div>
+              <p style={{ 
+                color: '#4f46e5', 
+                fontSize: '1.1rem',
+                fontWeight: '500'
+              }}>
+                Loading nearby surpluses...
+              </p>
+            </div>
           ) : otherSurplusItems.length === 0 ? (
-            <p style={{ textAlign: 'center', color: '#4b5563' }}>No surpluses available from other vendors nearby yet.</p>
+            <div style={{ 
+              textAlign: 'center', 
+              padding: '40px 20px',
+              background: 'rgba(255, 255, 255, 0.7)',
+              borderRadius: '12px',
+              border: '2px dashed #c7d2fe'
+            }}>
+              <div style={{ fontSize: '3rem', marginBottom: '16px' }}>🔍</div>
+              <p style={{ 
+                color: '#4f46e5', 
+                fontSize: '1.1rem',
+                fontWeight: '500',
+                marginBottom: '8px'
+              }}>
+                No surpluses available nearby
+              </p>
+              <p style={{ 
+                color: '#6b7280', 
+                fontSize: '0.95rem'
+              }}>
+                Check back later or expand your search area!
+              </p>
+            </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
-              {otherSurplusItems.map((item) => ( // Loop through items not listed by current user
-                <div key={item.id} className="card" style={{ border: '1px solid #e5e7eb', backgroundColor: '#f9fafb' }}>
-                  <h3 style={{ fontSize: '1.125rem', fontWeight: 'bold', color: '#1f2937' }}>{item.name}</h3>
-                  <p style={{ color: '#4b5563' }}>Quantity: {item.quantity} {item.unit}</p>
-                  <p style={{ color: '#16a34a', fontSize: '1.25rem', fontWeight: 'bold' }}>₹{item.price}</p>
-                  <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>Listed by: {item.listedByShop || item.listedByName} ({item.distance} km away)</p> {/* Display shop name */}
-                  {/* Standard buttons for others' items */}
-                  <button onClick={() => alert(`Please call vendor at (mock) +919999999999 to discuss this surplus of ${item.name}.`)}
-                          style={{ background: '#22c55e', color: 'white', padding: '8px', borderRadius: '4px', border: 'none', cursor: 'pointer', width: '100%', marginTop: '12px' }}>
-                    View Contact & Discuss
-                  </button>
-                  <button onClick={() => alert('Delivery partner requested for this item! (Mock confirmation)')}
-                          style={{ background: '#6366f1', color: 'white', padding: '8px', borderRadius: '4px', border: 'none', cursor: 'pointer', width: '100%', marginTop: '8px', fontSize: '0.875rem' }}>
-                    Request Delivery Partner (Optional)
-                  </button>
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+              gap: '20px',
+              animation: 'fadeIn 0.5s ease'
+            }}>
+              {otherSurplusItems.map((item, index) => (
+                <div 
+                  key={item.id} 
+                  className="card" 
+                  style={{ 
+                    border: '2px solid #e0e7ff', 
+                    background: 'linear-gradient(135deg, #fafbff, #f3f4f6)',
+                    borderRadius: '16px',
+                    boxShadow: '0 8px 24px rgba(99, 102, 241, 0.15)',
+                    transition: 'all 0.3s ease',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    animation: `fadeIn 0.5s ease ${index * 0.1}s both`
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-4px)';
+                    e.currentTarget.style.boxShadow = '0 12px 32px rgba(99, 102, 241, 0.25)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 8px 24px rgba(99, 102, 241, 0.15)';
+                  }}
+                >
+                  <div style={{ 
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: '4px',
+                    background: 'linear-gradient(90deg, #6366f1, #8b5cf6)'
+                  }}></div>
+                  <div style={{ 
+                    position: 'absolute',
+                    top: '12px',
+                    right: '12px',
+                    background: '#6366f1',
+                    color: 'white',
+                    padding: '4px 8px',
+                    borderRadius: '12px',
+                    fontSize: '0.75rem',
+                    fontWeight: '600'
+                  }}>
+                    📍 {item.distance} km
+                  </div>
+                  <h3 style={{ 
+                    fontSize: '1.3rem', 
+                    fontWeight: 'bold', 
+                    color: '#4f46e5',
+                    marginBottom: '12px',
+                    marginTop: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}>
+                    <span style={{ fontSize: '1.5rem' }}>
+                      {item.name === 'Tomato' ? '🍅' : 
+                       item.name === 'Onion' ? '🧅' : 
+                       item.name === 'Potato' ? '🥔' : 
+                       item.name === 'Coriander' ? '🌿' : 
+                       item.name === 'Dhaniya' ? '🌱' : '🥬'}
+                    </span>
+                    {item.name}
+                  </h3>
+                  <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center',
+                    marginBottom: '12px'
+                  }}>
+                    <p style={{ 
+                      color: '#6366f1', 
+                      fontSize: '1.1rem',
+                      fontWeight: '600',
+                      margin: 0
+                    }}>
+                      📦 {item.quantity} {item.unit}
+                    </p>
+                    <p style={{ 
+                      color: '#059669', 
+                      fontSize: '1.4rem', 
+                      fontWeight: 'bold',
+                      margin: 0
+                    }}>
+                      ₹{item.price}
+                    </p>
+                  </div>
+                  <div style={{ 
+                    padding: '12px',
+                    background: 'rgba(255, 255, 255, 0.8)',
+                    borderRadius: '8px',
+                    marginBottom: '16px'
+                  }}>
+                    <p style={{ 
+                      fontSize: '0.9rem', 
+                      color: '#4f46e5', 
+                      margin: 0,
+                      fontWeight: '500'
+                    }}>
+                      🏪 Listed by: {item.listedByShop || item.listedByName}
+                    </p>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <button 
+                      onClick={() => alert(`Please call vendor at (mock) +919999999999 to discuss this surplus of ${item.name}.`)}
+                      style={{ 
+                        background: 'linear-gradient(135deg, #10b981, #059669)', 
+                        color: 'white', 
+                        padding: '12px 16px', 
+                        borderRadius: '10px', 
+                        border: 'none', 
+                        cursor: 'pointer', 
+                        fontSize: '1rem',
+                        fontWeight: '600',
+                        transition: 'all 0.3s ease',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.transform = 'translateY(-2px)';
+                        e.target.style.boxShadow = '0 6px 20px rgba(16, 185, 129, 0.4)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.transform = 'translateY(0)';
+                        e.target.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
+                      }}
+                    >
+                      <span>📞</span>
+                      Contact & Discuss
+                    </button>
+                    <button 
+                      onClick={() => alert('Delivery partner requested for this item! (Mock confirmation)')}
+                      style={{ 
+                        background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', 
+                        color: 'white', 
+                        padding: '10px 16px', 
+                        borderRadius: '10px', 
+                        border: 'none', 
+                        cursor: 'pointer', 
+                        fontSize: '0.9rem',
+                        fontWeight: '600',
+                        transition: 'all 0.3s ease',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.transform = 'translateY(-2px)';
+                        e.target.style.boxShadow = '0 6px 20px rgba(99, 102, 241, 0.4)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.transform = 'translateY(0)';
+                        e.target.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.3)';
+                      }}
+                    >
+                      <span>🚚</span>
+                      Request Delivery
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>

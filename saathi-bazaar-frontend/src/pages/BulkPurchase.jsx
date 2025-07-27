@@ -181,36 +181,238 @@ function BulkPurchase() {
   );
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f3f4f6', display: 'flex', flexDirection: 'column' }}>
-      <Header /> {/* Includes your Header component */}
-      <div style={{ maxWidth: '960px', margin: '0 auto', padding: '16px', paddingTop: '80px' }}> {/* Main content area */}
-        <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '24px', textAlign: 'center', color: '#9333ea' }}>Saathi Bazaar Bulk Buy Scheme</h1>
-        <p style={{ fontSize: '1.125rem', textAlign: 'center', color: '#4b5563', marginBottom: '32px' }}>Pool your orders to unlock massive wholesale discounts!</p>
+    <div style={{ 
+      minHeight: '100vh', 
+      background: 'linear-gradient(135deg, var(--mint-50), var(--emerald-50))', 
+      display: 'flex', 
+      flexDirection: 'column',
+      transition: 'all 0.3s ease'
+    }}>
+      <Header />
+      <div style={{ 
+        maxWidth: '960px', 
+        margin: '0 auto', 
+        padding: '16px', 
+        paddingTop: '80px' 
+      }}>
+        {/* Animated Header */}
+        <div style={{ 
+          textAlign: 'center', 
+          marginBottom: '32px',
+          animation: 'fadeIn 0.6s ease'
+        }}>
+          <h1 style={{ 
+            fontSize: '2.5rem', 
+            fontWeight: 'bold', 
+            marginBottom: '8px',
+            color: 'var(--mint-700)',
+            background: 'linear-gradient(135deg, var(--mint-600), var(--emerald-600))',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            textShadow: '0 2px 4px rgba(0,0,0,0.1)'
+          }}>
+            📦 Bulk Buy Scheme
+          </h1>
+          <p style={{ 
+            fontSize: '1.2rem', 
+            color: 'var(--mint-600)', 
+            marginBottom: '8px',
+            fontWeight: '500',
+            animation: 'fadeIn 0.6s ease 0.2s both'
+          }}>
+            Pool your orders to unlock massive wholesale discounts!
+          </p>
+        </div>
 
-        {/* New Introductory Note */}
-        <div className="card" style={{ marginBottom: '32px', backgroundColor: '#fffbe0', borderColor: '#ffe082', borderLeft: '5px solid', padding: '12px', color: '#6d4c41' }}>
-            <p style={{ fontSize: '0.9rem', marginBottom: '8px' }}>
-                Welcome to Bulk Buy! Below you can contribute to ongoing bulk orders.
-            </p>
-            <p style={{ fontSize: '0.9rem', marginBottom: '8px' }}>
-                <span style={{ fontWeight: 'bold' }}>Your Contribution:</span> If you contribute to an order, it will show below the progress bar within the order card. You can cancel your contribution if the order's threshold hasn't been met yet.
-            </p>
-            <p style={{ fontSize: '0.9rem', marginBottom: '8px' }}>
-                <span style={{ fontWeight: 'bold' }}>Order Fulfillment:</span> Once a bulk order's threshold is met, it becomes a confirmed purchase at the discounted price and is added to your cart.
-            </p>
-            <p style={{ fontSize: '0.9rem', color: '#ef4444', fontWeight: 'bold' }}>
-                Warning: Orders added to your cart via Bulk Buy (i.e., fulfilled orders) cannot be cancelled without potential compensation.
-            </p>
+        {/* Enhanced Introductory Note */}
+        <div style={{ 
+          marginBottom: '32px', 
+          background: 'linear-gradient(135deg, rgba(255, 251, 224, 0.9), rgba(255, 224, 130, 0.1))',
+          border: '2px solid var(--emerald-200)',
+          borderLeft: '6px solid var(--emerald-400)',
+          borderRadius: '16px',
+          padding: '24px',
+          boxShadow: '0 8px 20px rgba(0, 0, 0, 0.05)',
+          animation: 'fadeIn 0.6s ease 0.3s both'
+        }}>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '12px', 
+            marginBottom: '16px' 
+          }}>
+            <span style={{ fontSize: '2rem' }}>💡</span>
+            <h3 style={{ 
+              fontSize: '1.3rem', 
+              fontWeight: '600', 
+              color: 'var(--emerald-700)',
+              margin: 0
+            }}>
+              How Bulk Buy Works
+            </h3>
+          </div>
+          
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: '12px' 
+          }}>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'flex-start', 
+              gap: '8px' 
+            }}>
+              <span style={{ fontSize: '1.2rem', marginTop: '2px' }}>🤝</span>
+              <p style={{ 
+                fontSize: '0.95rem', 
+                margin: 0, 
+                color: 'var(--mint-700)',
+                lineHeight: '1.5'
+              }}>
+                <strong>Contribute:</strong> Join ongoing bulk orders by adding your required quantity
+              </p>
+            </div>
+            
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'flex-start', 
+              gap: '8px' 
+            }}>
+              <span style={{ fontSize: '1.2rem', marginTop: '2px' }}>📊</span>
+              <p style={{ 
+                fontSize: '0.95rem', 
+                margin: 0, 
+                color: 'var(--mint-700)',
+                lineHeight: '1.5'
+              }}>
+                <strong>Track Progress:</strong> Watch the progress bar fill up as more vendors join
+              </p>
+            </div>
+            
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'flex-start', 
+              gap: '8px' 
+            }}>
+              <span style={{ fontSize: '1.2rem', marginTop: '2px' }}>🎯</span>
+              <p style={{ 
+                fontSize: '0.95rem', 
+                margin: 0, 
+                color: 'var(--mint-700)',
+                lineHeight: '1.5'
+              }}>
+                <strong>Get Discounts:</strong> Once threshold is met, everyone gets the bulk price
+              </p>
+            </div>
+            
+            <div style={{ 
+              background: 'rgba(239, 68, 68, 0.1)', 
+              borderRadius: '12px', 
+              padding: '12px 16px', 
+              border: '1px solid rgba(239, 68, 68, 0.2)',
+              marginTop: '8px'
+            }}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '8px' 
+              }}>
+                <span style={{ fontSize: '1.2rem' }}>⚠️</span>
+                <p style={{ 
+                  fontSize: '0.9rem', 
+                  color: '#dc2626', 
+                  fontWeight: '600',
+                  margin: 0
+                }}>
+                  Warning: Fulfilled orders automatically add to your cart and cannot be cancelled
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
 
-        {/* Main Bulk Orders List */}
-        <div className="card" style={{ marginBottom: '32px' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '16px' }}>Available Bulk Orders to Contribute</h2>
+        {/* Enhanced Main Bulk Orders List */}
+        <div style={{ 
+          background: 'rgba(255, 255, 255, 0.9)', 
+          borderRadius: '20px', 
+          padding: '32px',
+          border: '2px solid var(--mint-200)',
+          boxShadow: '0 12px 30px rgba(0, 0, 0, 0.08)',
+          marginBottom: '32px',
+          animation: 'fadeIn 0.6s ease 0.4s both'
+        }}>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '12px', 
+              marginBottom: '24px' 
+            }}>
+              <span style={{ fontSize: '2rem' }}>📦</span>
+              <h2 style={{ 
+                fontSize: '1.8rem', 
+                fontWeight: '700', 
+                color: 'var(--mint-700)',
+                margin: 0
+              }}>
+                Available Bulk Orders
+              </h2>
+            </div>
+            
             {loadingBulkOrders ? (
-                <p style={{ textAlign: 'center', color: '#4b5563' }}>Loading active bulk orders...</p>
-            ) : mainBulkOrdersDisplay.length === 0 ? ( // Uses the now-defined variable
-                <p style={{ textAlign: 'center', color: '#4b5563' }}>No active bulk orders right now. Check back later!</p>
+              <div style={{ 
+                textAlign: 'center', 
+                padding: '60px 20px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '20px'
+              }}>
+                <div style={{ 
+                  width: '60px',
+                  height: '60px',
+                  border: '4px solid var(--mint-200)',
+                  borderTop: '4px solid var(--mint-500)',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite'
+                }}></div>
+                <p style={{ 
+                  color: 'var(--mint-600)', 
+                  fontSize: '1.2rem',
+                  fontWeight: '500'
+                }}>
+                  Loading bulk orders...
+                </p>
+              </div>
+            ) : mainBulkOrdersDisplay.length === 0 ? (
+              <div style={{ 
+                textAlign: 'center', 
+                padding: '60px 20px',
+                background: 'var(--mint-25)',
+                borderRadius: '16px',
+                border: '2px dashed var(--mint-300)'
+              }}>
+                <div style={{ 
+                  fontSize: '4rem', 
+                  marginBottom: '20px',
+                  animation: 'bounce 2s infinite'
+                }}>📦</div>
+                <h3 style={{ 
+                  color: 'var(--mint-700)', 
+                  fontSize: '1.5rem',
+                  fontWeight: '600',
+                  marginBottom: '12px'
+                }}>
+                  No active bulk orders
+                </h3>
+                <p style={{ 
+                  color: 'var(--mint-600)', 
+                  fontSize: '1.1rem'
+                }}>
+                  Check back later for new bulk buying opportunities!
+                </p>
+              </div>
             ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
                     {mainBulkOrdersDisplay.map((order) => { // Uses the now-defined variable

@@ -15,10 +15,6 @@ const Home = () => {
             <span className="new-logo-text">SathiBazaar</span>
           </div>
           <div className="new-nav-links">
-            <a href="#vendors" className="nav-link">For Vendors</a>
-            <a href="#shopkeeper" className="nav-link">For Shopkeeper</a>
-            <a href="#about" className="nav-link">About</a>
-            <a href="#feature" className="nav-link">Feature</a>
           </div>
           <div className="new-nav-actions">
             <button 
@@ -51,23 +47,23 @@ const Home = () => {
           <div className="user-type-buttons">
             <button 
               className="user-type-btn vendor-btn"
-              onClick={() => navigate('/auth')}
+              onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
             >
-              <div className="btn-icon">👥</div>
+              <div className="btn-icon">ℹ️</div>
               <div className="btn-content">
-                <div className="btn-title">I am a Vendor</div>
-                <div className="btn-subtitle">I want to sell my product</div>
+                <div className="btn-title">About</div>
+                <div className="btn-subtitle">Learn more about SathiBazaar</div>
               </div>
             </button>
             
             <button 
               className="user-type-btn shopkeeper-btn"
-              onClick={() => navigate('/auth')}
+              onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
             >
-              <div className="btn-icon">🏪</div>
+              <div className="btn-icon">⭐</div>
               <div className="btn-content">
-                <div className="btn-title">I am a Shopkeeper</div>
-                <div className="btn-subtitle">I want to buy for my shop</div>
+                <div className="btn-title">Features</div>
+                <div className="btn-subtitle">Discover what we offer</div>
               </div>
             </button>
           </div>
@@ -75,7 +71,7 @@ const Home = () => {
       </main>
 
       {/* Why Choose SathiBazaar Section */}
-      <section className="why-choose-section">
+      <section className="why-choose-section" id="about">
         <div className="why-choose-container">
           <div className="why-choose-header">
             <h2 className="why-choose-title">
@@ -87,7 +83,7 @@ const Home = () => {
             </p>
           </div>
           
-          <div className="features-grid-6">
+          <div className="features-grid-6" id="features">
             <div className="why-choose-card">
               <div className="card-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
