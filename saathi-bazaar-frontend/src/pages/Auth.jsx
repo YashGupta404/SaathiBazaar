@@ -1,141 +1,411 @@
 // saathi-bazaar-frontend/src/pages/Auth.jsx
-// Basic functional authentication page for login and registration.
-// This UI is simplified for backend testing. Your frontend team will enhance its design.
+// Enhanced Authentication page with modern design system.
 
-import React, { useState, useEffect } from 'react'; // React hooks for managing component state and side effects
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'; // Firebase functions for user account creation and sign-in
-import { auth } from '../firebase'; // Your Firebase client-side authentication instance (from src/firebase.js)
-import api from '../api'; // Your configured Axios API instance (from src/api.js) for communicating with your backend
-import { useNavigate } from 'react-router-dom'; // Hook from React Router to programmatically navigate between pages
+import React, { useState, useEffect } from 'react';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../firebase';
+import api from '../api';
+import { useNavigate } from 'react-router-dom';
 
 function Auth() {
-  const [isRegister, setIsRegister] = useState(true); // State to toggle between the registration form (true) and the login form (false)
-  const [email, setEmail] = useState(''); // State to hold the email input value
-  const [password, setPassword] = useState(''); // State to hold the password input value
-  const [name, setName] = useState(''); // State to hold the user's name input (only relevant for registration)
-  const [contact, setContact] = useState(''); // State to hold the user's contact number input (only relevant for registration)
-  const [shopName, setShopName] = useState(''); // State to hold the user's shop name input (only relevant for registration)
-  const [location, setLocation] = useState({ lat: 0, long: 0 }); // State to store the user's geographic location (latitude and longitude)
-  const [loadingLocation, setLoadingLocation] = useState(false); // State to indicate if the location is currently being fetched
-  const navigate = useNavigate(); // Initialize the useNavigate hook to get the navigation function
+  const [isRegister, setIsRegister] = useState(true);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [contact, setContact] = useState('');
+  const [shopName, setShopName] = useState('');
+  const [location, setLocation] = useState({ lat: 0, long: 0 });
+  const [locationAddress, setLocationAddress] = useState('');
+  const [loadingAddress, setLoadingAddress] = useState(false);
+  const [loadingLocation, setLoadingLocation] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [focusedField, setFocusedField] = useState('');
+  const navigate = useNavigate();
 
-  // Function to get the user's current geographic location using the browser's built-in Geolocation API
-  const getLocation = () => {
-    setLoadingLocation(true); // Set loading state to true while attempting to fetch location
-    if (navigator.geolocation) { // Check if the browser supports the Geolocation API
-      navigator.geolocation.getCurrentPosition(
-        (position) => { // Success callback: This runs if the location is found
-          setLocation({
-            lat: position.coords.latitude, // Get latitude from the position object
-            long: position.coords.longitude, // Get longitude from the position object
-          });
-          console.log("Location set:", position.coords.latitude, position.coords.longitude); // Log the location to the console for debugging
-          setLoadingLocation(false); // Set loading state to false
-        },
-        (error) => { // Error callback: This runs if location fetching fails or the user denies permission
-          console.error("Error getting location:", error); // Log the error to the console
-          alert("Please enable location services for better experience. Using default location (Sealdah)."); // Inform the user
-          setLoadingLocation(false); // Set loading state to false
-          // Fallback to a default location (e.g., Sealdah, Kolkata coordinates) if the browser fails to get location
-          setLocation({ lat: 22.5700, long: 88.3697 }); // Default Sealdah coordinates
-        }
-      );
-    } else { // If the user's browser does not support geolocation
-      alert("Geolocation is not supported by this browser. Using default location (Sealdah)."); // Inform the user
-      setLoadingLocation(false);
-      setLocation({ lat: 22.5700, long: 88.3697 }); // Default Sealdah coordinates
-    }
-  };
+  const getAddressFromCoordinates = async (lat, lng) => {
+    try {
+      // Using Nominatim (OpenStreetMap) - Free and no API key required
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=en&addressdetails=1`
+      );
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.display_name) {
+          // Format the address nicely
+          const address = data.address;
+          let formattedAddress = '';
+          
+          if (address) {
+            const parts = [];
+            if (address.house_number && address.road) {
+              parts.push(`${address.house_number} ${address.road}`);
+            } else if (address.road) {
+              parts.push(address.road);
+            }
+            if (address.neighbourhood || address.suburb) {
+              parts.push(address.neighbourhood || address.suburb);
+            }
+            if (address.city || address.town || address.village) {
+              parts.push(address.city || address.town || address.village);
+            }
+            if (address.state) {
+              parts.push(address.state);
+            }
+            if (address.postcode) {
+              parts.push(address.postcode);
+            }
+            
+            formattedAddress = parts.join(', ');
+          }
+          
+          return formattedAddress || data.display_name;
+        }
+      }
+      
+      // Fallback to coordinates if geocoding fails
+      return `📍 Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`;
+    } catch (error) {
+      console.error('Error getting address:', error);
+      return `📍 Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`;
+    }
+  };
 
-  // useEffect hook: This hook runs code after the component renders.
-  // With an empty dependency array ([]), it runs only once after the initial render (similar to componentDidMount in class components).
-  useEffect(() => {
-    getLocation(); // Call getLocation when the component first loads to try and get user's location
-  }, []);
+  const getLocation = () => {
+    setLoadingLocation(true);
+    setLoadingAddress(true);
+    setLocationAddress(''); // Clear previous address
+    
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          
+          setLocation({
+            lat: lat,
+            long: lng,
+          });
+          setLoadingLocation(false);
+          
+          console.log("Location set:", lat, lng);
+          
+          // Get the address from coordinates
+          const address = await getAddressFromCoordinates(lat, lng);
+          setLocationAddress(address);
+          setLoadingAddress(false);
+          
+          console.log("Address:", address);
+        },
+        async (error) => {
+          console.error("Error getting location:", error);
+          alert("Please enable location services for better experience. Using default location (Sealdah).");
+          setLoadingLocation(false);
+          const defaultLat = 22.5700;
+          const defaultLng = 88.3697;
+          setLocation({ lat: defaultLat, long: defaultLng });
+          
+          // Get address for default location
+          const address = await getAddressFromCoordinates(defaultLat, defaultLng);
+          setLocationAddress(address);
+          setLoadingAddress(false);
+        }
+      );
+    } else {
+      const defaultLat = 22.5700;
+      const defaultLng = 88.3697;
+      alert("Geolocation is not supported by this browser. Using default location (Sealdah).");
+      setLoadingLocation(false);
+      setLocation({ lat: defaultLat, long: defaultLng });
+      
+      // Get address for default location
+      getAddressFromCoordinates(defaultLat, defaultLng).then(address => {
+        setLocationAddress(address);
+        setLoadingAddress(false);
+      });
+    }
+  };
 
-  // Handles the form submission for both user registration and login
-  const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent the default browser page refresh on form submission
-    try {
-      if (isRegister) { // Logic for user registration
-        // 1. Register user with Firebase Authentication (client-side)
-        // This creates an account for the user in Firebase's authentication system.
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user; // Get the user object from Firebase (contains UID, email, etc.)
-        // The 'api.post' call below will handle getting the ID token automatically via the Axios interceptor you set up.
+  useEffect(() => {
+    getLocation();
+    
+    // Create floating particles for auth page
+    const createParticle = () => {
+      const particleTypes = [
+        { type: 'leaf', content: ['🍃', '🌿', '☘️'], className: 'leaf' },
+        { type: 'sparkle', content: [''], className: 'sparkle' },
+        { type: 'bubble', content: [''], className: 'bubble' }
+      ];
+      
+      const randomType = particleTypes[Math.floor(Math.random() * particleTypes.length)];
+      const particle = document.createElement('div');
+      particle.className = `auth-particle ${randomType.className}`;
+      
+      if (randomType.type === 'leaf') {
+        particle.textContent = randomType.content[Math.floor(Math.random() * randomType.content.length)];
+      }
+      
+      particle.style.left = Math.random() * 100 + '%';
+      particle.style.top = Math.random() * 100 + '%';
+      particle.style.animationDelay = Math.random() * 2 + 's';
+      particle.style.animationDuration = (Math.random() * 4 + 6) + 's';
+      
+      const authContainer = document.querySelector('.auth-container');
+      if (authContainer) {
+        authContainer.appendChild(particle);
+        
+        setTimeout(() => {
+          if (particle.parentNode) {
+            particle.remove();
+          }
+        }, 12000);
+      }
+    };
+    
+    // Create particles periodically
+    const particleInterval = setInterval(createParticle, 2000);
+    
+    // Create initial particles
+    for (let i = 0; i < 5; i++) {
+      setTimeout(createParticle, i * 500);
+    }
+    
+    return () => {
+      clearInterval(particleInterval);
+    };
+  }, []);
 
-        // 2. Send additional user data to your Node.js backend to save in MongoDB
-        // This uses your 'api' instance to send a POST request to the '/auth/register' endpoint.
-        // The backend will then store this user's details (name, contact, shop name, location) in MongoDB.
-        await api.post('/auth/register', {
-          uid: user.uid, // Pass Firebase User ID (UID) to link accounts in MongoDB
-          email, // Optional: Pass email if your backend schema includes it
-          password, // Optional: Pass password if your backend needs it, though it's less common for registration
-          name, contact, shop_name: shopName, location,
-        });
-        alert('Registration successful! You can now log in.'); // Show a success message to the user
-        setIsRegister(false); // After successful registration, automatically switch the form to login mode
-      } else { // Logic for user login
-        // 1. Log in user with Firebase Authentication (client-side)
-        // This authenticates the user against Firebase's system.
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user; // Get the user object from Firebase
-        const idToken = await user.getIdToken(); // Get the ID token (important for authenticating subsequent requests)
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    
+    try {
+      if (isRegister) {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        
+        await api.post('/auth/register', {
+          uid: user.uid,
+          email,
+          password,
+          name,
+          contact,
+          shop_name: shopName,
+          location,
+        });
+        alert('Registration successful! You can now log in.');
+        setIsRegister(false);
+      } else {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        const idToken = await user.getIdToken();
 
-        // --- IMPORTANT CHANGES BELOW ---
-        // 2. Call your backend's login route to get the MongoDB _id
-        // The backend will verify idToken (sent via Axios interceptor) and return userId in response
-        const res = await api.post('/auth/login', { idToken }); // Pass idToken in body for this specific login endpoint's needs
-                                                                // Axios interceptor also adds it to headers.
+        const res = await api.post('/auth/login', { idToken });
 
-        // 3. Store both the idToken and the MongoDB userId in local storage
-        localStorage.setItem('idToken', idToken); // Store Firebase ID token
-        localStorage.setItem('userId', res.data.userId); // <<<<< NEW: Store MongoDB userId returned from backend
-        // --- END IMPORTANT CHANGES ---
+        localStorage.setItem('idToken', idToken);
+        localStorage.setItem('userId', res.data.userId);
 
-        alert('Login successful!'); // Show a success message
-        navigate('/dashboard'); // Navigate the user to the main dashboard page after successful login
-      }
-    } catch (error) { // Catch any errors that occur during Firebase authentication or API calls
-      console.error('Authentication error:', error.message); // Log the error to the console for debugging
-      alert(`Error: ${error.message}`); // Display a user-friendly error message to the user
-    }
-  };
+        alert('Login successful!');
+        navigate('/dashboard');
+      }
+    } catch (error) {
+      console.error('Authentication error:', error.message);
+      alert(`Error: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100"> {/* Outer container: sets minimum height to fill screen, uses flexbox to center content, light gray background */}
-      <div className="bg-white p-8 rounded shadow-md w-96"> {/* Inner container (the card): white background, padding, rounded corners, shadow, fixed width */}
-        <h2 className="text-2xl font-bold mb-4 text-center">
-          {isRegister ? 'Register' : 'Login'} to Saathi Bazaar {/* Dynamic heading based on whether it's register or login mode */}
-        </h2>
-        <form onSubmit={handleSubmit}> {/* The HTML form for submission */}
-          {isRegister && ( // Conditional rendering: These fields are only shown if 'isRegister' is true (registration mode)
-            <>
-              <input type="text" placeholder="Your Name" value={name} onChange={(e) => setName(e.target.value)} className="w-full p-2 mb-3 border rounded" required />
-              <input type="text" placeholder="Contact Number" value={contact} onChange={(e) => setContact(e.target.value)} className="w-full p-2 mb-3 border rounded" required />
-              <input type="text" placeholder="Shop Name" value={shopName} onChange={(e) => setShopName(e.target.value)} className="w-full p-2 mb-3 border rounded" required />
-              {/* Location display: Shows fetched location or "Fetching..." message */}
-              <div className="mb-3">
-                <span className="block text-sm text-gray-600">Your Location: {loadingLocation ? 'Fetching...' : `${location.lat.toFixed(4)}, ${location.long.toFixed(4)}`}</span>
-                <button type="button" onClick={getLocation} className="text-sm text-blue-500 hover:underline">Recalibrate Location</button> {/* Button to re-fetch location */}
-              </div>
-            </>
-          )}
-          {/* Common fields for both register and login */}
-          <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-2 mb-3 border rounded" required />
-          <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-2 mb-3 border rounded" required />
-          <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
-            {isRegister ? 'Register' : 'Login'} {/* Dynamic button text */}
-          </button>
-        </form>
-        <p className="mt-4 text-center">
-          {isRegister ? 'Already have an account?' : 'Need an account?'}{' '}
-          <button onClick={() => setIsRegister(!isRegister)} className="text-blue-500 hover:underline">
-            {isRegister ? 'Login here' : 'Register here'} {/* Button to toggle between register/login forms */}
-          </button>
-        </p>
-      </div>
-    </div>
-  );
+  return (
+    <div className="auth-container">
+      {/* Animated geometric background elements */}
+      <div className="geometric-bg circle-1"></div>
+      <div className="geometric-bg circle-2"></div>
+      <div className="geometric-bg triangle-1"></div>
+      <div className="geometric-bg hexagon-1"></div>
+      
+      <div className="auth-card">
+        <div className="auth-header">
+          <h1 className="auth-title">Saathi Bazaar</h1>
+          <p className="auth-subtitle">
+            {isRegister ? 'Create your vendor account' : 'Welcome back, vendor!'}
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label className="form-label">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onFocus={() => setFocusedField('email')}
+              onBlur={() => setFocusedField('')}
+              className={`form-input ${focusedField === 'email' ? 'form-focused' : ''}`}
+              placeholder="your.email@example.com"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onFocus={() => setFocusedField('password')}
+              onBlur={() => setFocusedField('')}
+              className={`form-input ${focusedField === 'password' ? 'form-focused' : ''}`}
+              placeholder="Enter your password"
+              required
+            />
+          </div>
+
+          {isRegister && (
+            <>
+              <div className="form-group">
+                <label className="form-label">Full Name</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  onFocus={() => setFocusedField('name')}
+                  onBlur={() => setFocusedField('')}
+                  className={`form-input ${focusedField === 'name' ? 'form-focused' : ''}`}
+                  placeholder="Your full name"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Contact Number</label>
+                <input
+                  type="tel"
+                  value={contact}
+                  onChange={(e) => setContact(e.target.value)}
+                  onFocus={() => setFocusedField('contact')}
+                  onBlur={() => setFocusedField('')}
+                  className={`form-input ${focusedField === 'contact' ? 'form-focused' : ''}`}
+                  placeholder="+91 XXXXX XXXXX"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Shop Name</label>
+                <input
+                  type="text"
+                  value={shopName}
+                  onChange={(e) => setShopName(e.target.value)}
+                  onFocus={() => setFocusedField('shopName')}
+                  onBlur={() => setFocusedField('')}
+                  className={`form-input ${focusedField === 'shopName' ? 'form-focused' : ''}`}
+                  placeholder="Your shop name"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Location</label>
+                <button
+                  type="button"
+                  onClick={getLocation}
+                  className={`btn ${loadingLocation ? 'btn-secondary' : 'btn-outline'}`}
+                  disabled={loadingLocation}
+                  style={{ width: '100%' }}
+                >
+                  {loadingLocation ? (
+                    <>
+                      <span className="spinner"></span>
+                      Getting location...
+                    </>
+                  ) : (
+                    <>
+                      📍 Get Current Location
+                    </>
+                  )}
+                </button>
+                {location.lat !== 0 && locationAddress && !loadingAddress && (
+                  <div style={{ marginTop: 'var(--space-3)' }}>
+                    <p className="text-sm" style={{ color: 'var(--success-600)', marginBottom: 'var(--space-1)' }}>
+                      ✅ Location detected:
+                    </p>
+                    <p className="text-sm" style={{ 
+                      color: 'var(--gray-700)', 
+                      backgroundColor: 'var(--success-50)', 
+                      padding: 'var(--space-3)', 
+                      borderRadius: 'var(--radius-md)',
+                      border: '1px solid var(--success-200)',
+                      fontSize: '0.875rem',
+                      lineHeight: '1.4'
+                    }}>
+                      📍 {locationAddress}
+                    </p>
+                  </div>
+                )}
+                {location.lat !== 0 && loadingAddress && (
+                  <div style={{ marginTop: 'var(--space-3)' }}>
+                    <p className="text-sm" style={{ color: 'var(--warning-600)', marginBottom: 'var(--space-1)' }}>
+                      � Getting address...
+                    </p>
+                    <p className="text-sm" style={{ 
+                      color: 'var(--gray-600)', 
+                      backgroundColor: 'var(--warning-50)', 
+                      padding: 'var(--space-2)', 
+                      borderRadius: 'var(--radius-md)',
+                      border: '1px solid var(--warning-200)',
+                      fontSize: '0.75rem'
+                    }}>
+                      Coordinates: {location.lat.toFixed(4)}, {location.long.toFixed(4)}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
+          <button 
+            type="submit" 
+            className="btn btn-primary btn-lg" 
+            style={{ width: '100%' }}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <span className="spinner"></span>
+                {isRegister ? 'Creating Account...' : 'Signing In...'}
+              </>
+            ) : (
+              <>
+                {isRegister ? '🌱 Create Account' : '🔐 Sign In'}
+              </>
+            )}
+          </button>
+        </form>
+
+        <div className="auth-toggle">
+          <p className="text-sm" style={{ color: 'var(--gray-600)' }}>
+            {isRegister ? 'Already have an account?' : "Don't have an account?"}
+            <button
+              type="button"
+              onClick={() => setIsRegister(!isRegister)}
+              style={{ 
+                background: 'none', 
+                border: 'none', 
+                color: 'var(--primary-600)', 
+                fontWeight: '500', 
+                marginLeft: 'var(--space-1)',
+                cursor: 'pointer',
+                textDecoration: 'underline'
+              }}
+            >
+              {isRegister ? 'Sign In' : 'Create Account'}
+            </button>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
 }
-export default Auth; // Exports the Auth component for use in App.jsx here is my auth.jsx
+
+export default Auth;

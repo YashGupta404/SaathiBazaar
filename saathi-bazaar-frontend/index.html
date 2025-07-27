@@ -4,10 +4,42 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React</title>
+    <title>🌱 Saathi Bazaar - Your Green Marketplace</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Meta tags for better SEO -->
+    <meta name="description" content="Saathi Bazaar - Your green marketplace for street food vendors. Connect sustainably, reduce waste, and grow your business.">
+    <meta name="keywords" content="green marketplace, sustainable business, street food, vendors, wholesale, eco-friendly, bulk purchase">
+    <meta name="author" content="Saathi Bazaar Team">
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    
+    <!-- Floating plant animations -->
+    <script>
+      // Add floating plant emojis for green ambiance
+      function createFloatingPlant() {
+        const plants = ['�', '🌿', '🍀', '🌾', '🌳', '�', '🍃', '☘️'];
+        const plant = document.createElement('div');
+        plant.className = 'floating-plant';
+        plant.textContent = plants[Math.floor(Math.random() * plants.length)];
+        plant.style.left = Math.random() * 100 + 'vw';
+        plant.style.animationDuration = (Math.random() * 12 + 8) + 's';
+        plant.style.animationDelay = Math.random() * 5 + 's';
+        document.body.appendChild(plant);
+        
+        setTimeout(() => {
+          plant.remove();
+        }, 20000);
+      }
+      
+      // Create floating plants periodically
+      if (window.location.pathname === '/dashboard' || window.location.pathname === '/') {
+        setInterval(createFloatingPlant, 4000);
+      }
+    </script>
   </body>
 </html>

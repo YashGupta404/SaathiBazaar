@@ -1,13 +1,10 @@
 const express = require('express');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const axios = require('axios');
 
 const BulkOrder = require('../models/BulkOrder');
 const MandiWholesaler = require('../models/MandiWholesaler');
 const Product = require('../models/Product');
 const User = require('../models/User');
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
 module.exports = (auth) => {
   const router = express.Router();
@@ -109,17 +106,37 @@ module.exports = (auth) => {
 
     const fullPrompt = `${systemInstructions}\n\nVendor's Question: "${prompt}"\n\n${context}Answer: `;
 
-    console.log('DEBUG: Full prompt sent to Gemini AI:', fullPrompt);
+    console.log('DEBUG: Full prompt sent to OpenRouter AI:', fullPrompt);
 
     try {
-      const result = await model.generateContent(fullPrompt);
-      const response = await result.response;
-      const text = response.text();
+      const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
+        model: process.env.OPENROUTER_MODEL,
+        messages: [
+          {
+            role: 'system',
+            content: systemInstructions
+          },
+          {
+            role: 'user', 
+            content: `${prompt}\n\nContext: ${context}`
+          }
+        ],
+        max_tokens: 1000,
+        temperature: 0.7
+      }, {
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'http://localhost:3000',
+          'X-Title': 'Saathi Bazaar'
+        }
+      });
 
-      console.log('DEBUG: Gemini AI raw response:', text);
-      res.status(200).send({ answer: text });
+      const aiResponse = response.data.choices[0].message.content;
+      console.log('DEBUG: OpenRouter AI raw response:', aiResponse);
+      res.status(200).send({ answer: aiResponse });
     } catch (aiError) {
-      console.error('Error with AI chat (Gemini API or other):', aiError.message);
+      console.error('Error with AI chat (OpenRouter API):', aiError.response?.data || aiError.message);
       res.status(500).send({ error: 'Failed to get response from Bazaar Guru. Please try again later.' });
     }
   }); // ✅ <--- This closes the router.post function properly

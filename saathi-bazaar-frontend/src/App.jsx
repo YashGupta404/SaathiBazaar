@@ -5,6 +5,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 // Imports your page components.
+import Home from './pages/Home';
 import Auth from './pages/Auth';
 import Dashboard from './pages/Dashboard';
 import VendorToVendor from './pages/VendorToVendor';
@@ -25,11 +26,10 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Public Route: Authentication Page */}
+        {/* Public Routes */}
+        <Route path="/" element={<Home />} />
+        <Route path="/home" element={<Home />} />
         <Route path="/auth" element={<Auth />} />
-
-        {/* Default Route: Redirects the root URL ('/') to the '/dashboard' */}
-        <Route path="/" element={<Navigate to="/dashboard" />} />
 
         {/* Protected Routes (require user to be logged in) */}
         <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
