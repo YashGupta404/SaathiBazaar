@@ -30,3 +30,4 @@ const app = initializeApp(firebaseConfig); // This connects your web app to your
 // 'analytics' for sending usage data to Google Analytics (optional, but initialized here).
 export const auth = getAuth(app);
 export const analytics = getAnalytics(app); // Note: Analytics is initialized but not directly used in initial MVP features.
+window.auth = auth;

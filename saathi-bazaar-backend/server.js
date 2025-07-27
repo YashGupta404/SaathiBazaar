@@ -8,7 +8,7 @@ require('dotenv').config(); // Loads environment variables (like secret keys) fr
 const path = require('path'); // Node.js built-in module for working with file paths
 
 // --- Firebase Admin SDK Initialization (for verifying user logins on the backend) ---
-// This line constructs the path to the Firebase service account key file using the exact filename provided.
+// This line constructs the path to the the Firebase service account key file using the exact filename provided.
 // Make sure this JSON file is located directly inside the saathi-bazaar-backend folder.
 const serviceAccountPath = path.resolve(__dirname, 'saathi-bazaar-hackathon-2025-firebase-adminsdk-fbsvc-0530993899.json'); // <<<<<<< UPDATED FILENAME
 
@@ -45,6 +45,7 @@ require('./models/Product');
 require('./models/MandiWholesaler');
 require('./models/BulkOrder');
 require('./models/SearchHistory');
+require('./models/Order'); // <<< ADDED: Loading the new Order model
 
 // --- Import and Use Routes (Your API Endpoints) ---
 // These lines connect your API endpoint files (e.g., routes/auth.js) to your main server.
@@ -53,6 +54,7 @@ const authRoutes = require('./routes/auth')(auth);
 const vendorRoutes = require('./routes/vendor')(auth);
 const mandiRoutes = require('./routes/mandi')(auth);
 const chatRoutes = require('./routes/chat')(auth); // For the AI Chatbot
+const orderRoutes = require('./routes/order')(auth); // <<< ADDED: Import the new order routes
 
 // Define the base paths for each set of routes.
 // E.g., any route defined in auth.js will start with /api/auth (e.g., /api/auth/register)
@@ -60,6 +62,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/vendor', vendorRoutes);
 app.use('/api/mandi', mandiRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/order', orderRoutes); // <<< ADDED: Use the new order routes
 
 // Basic test route to check if server is running
 app.get('/', (req, res) => {

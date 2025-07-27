@@ -12,6 +12,8 @@ import MandiDirectory from './pages/MandiDirectory';
 import MandiDetail from './pages/MandiDetail';
 import BulkPurchase from './pages/BulkPurchase';
 import Chatbot from './pages/Chatbot';
+import VendorProfile from './pages/VendorProfile'; // <<< NEW IMPORT
+import Cart from './pages/Cart'; // <<< NEW IMPORT
 
 // Simple PrivateRoute component to protect routes.
 const PrivateRoute = ({ children }) => {
@@ -36,6 +38,8 @@ function App() {
         <Route path="/mandis/:id" element={<PrivateRoute><MandiDetail /></PrivateRoute>} />
         <Route path="/bulk-purchase" element={<PrivateRoute><BulkPurchase /></PrivateRoute>} />
         <Route path="/chatbot" element={<PrivateRoute><Chatbot /></PrivateRoute>} />
+        <Route path="/profile" element={<PrivateRoute><VendorProfile /></PrivateRoute>} /> {/* <<< NEW ROUTE */}
+        <Route path="/cart" element={<PrivateRoute><Cart /></PrivateRoute>} /> {/* <<< NEW ROUTE */}
         {/* Add more protected routes here as you create new pages */}
       </Routes>
     </Router>

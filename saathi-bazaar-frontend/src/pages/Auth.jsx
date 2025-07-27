@@ -1,112 +1,141 @@
 // saathi-bazaar-frontend/src/pages/Auth.jsx
 // Basic functional authentication page for login and registration.
-// Now uses standard CSS classes or inline styles.
+// This UI is simplified for backend testing. Your frontend team will enhance its design.
 
-import React, { useState, useEffect } from 'react';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebase';
-import api from '../api';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react'; // React hooks for managing component state and side effects
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'; // Firebase functions for user account creation and sign-in
+import { auth } from '../firebase'; // Your Firebase client-side authentication instance (from src/firebase.js)
+import api from '../api'; // Your configured Axios API instance (from src/api.js) for communicating with your backend
+import { useNavigate } from 'react-router-dom'; // Hook from React Router to programmatically navigate between pages
 
 function Auth() {
-  const [isRegister, setIsRegister] = useState(true);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [contact, setContact] = useState('');
-  const [shopName, setShopName] = useState('');
-  const [location, setLocation] = useState({ lat: 0, long: 0 });
-  const [loadingLocation, setLoadingLocation] = useState(false);
-  const navigate = useNavigate();
+  const [isRegister, setIsRegister] = useState(true); // State to toggle between the registration form (true) and the login form (false)
+  const [email, setEmail] = useState(''); // State to hold the email input value
+  const [password, setPassword] = useState(''); // State to hold the password input value
+  const [name, setName] = useState(''); // State to hold the user's name input (only relevant for registration)
+  const [contact, setContact] = useState(''); // State to hold the user's contact number input (only relevant for registration)
+  const [shopName, setShopName] = useState(''); // State to hold the user's shop name input (only relevant for registration)
+  const [location, setLocation] = useState({ lat: 0, long: 0 }); // State to store the user's geographic location (latitude and longitude)
+  const [loadingLocation, setLoadingLocation] = useState(false); // State to indicate if the location is currently being fetched
+  const navigate = useNavigate(); // Initialize the useNavigate hook to get the navigation function
 
-  const getLocation = () => {
-    setLoadingLocation(true);
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setLocation({
-            lat: position.coords.latitude,
-            long: position.coords.longitude,
-          });
-          console.log("Location set:", position.coords.latitude, position.coords.longitude);
-          setLoadingLocation(false);
-        },
-        (error) => {
-          console.error("Error getting location:", error);
-          alert("Please enable location services for better experience. Using default location (Sealdah).");
-          setLoadingLocation(false);
-          setLocation({ lat: 22.5700, long: 88.3697 });
-        }
-      );
-    } else {
-      alert("Geolocation is not supported by this browser. Using default location (Sealdah).");
-      setLoadingLocation(false);
-      setLocation({ lat: 22.5700, long: 88.3697 });
-    }
-  };
+  // Function to get the user's current geographic location using the browser's built-in Geolocation API
+  const getLocation = () => {
+    setLoadingLocation(true); // Set loading state to true while attempting to fetch location
+    if (navigator.geolocation) { // Check if the browser supports the Geolocation API
+      navigator.geolocation.getCurrentPosition(
+        (position) => { // Success callback: This runs if the location is found
+          setLocation({
+            lat: position.coords.latitude, // Get latitude from the position object
+            long: position.coords.longitude, // Get longitude from the position object
+          });
+          console.log("Location set:", position.coords.latitude, position.coords.longitude); // Log the location to the console for debugging
+          setLoadingLocation(false); // Set loading state to false
+        },
+        (error) => { // Error callback: This runs if location fetching fails or the user denies permission
+          console.error("Error getting location:", error); // Log the error to the console
+          alert("Please enable location services for better experience. Using default location (Sealdah)."); // Inform the user
+          setLoadingLocation(false); // Set loading state to false
+          // Fallback to a default location (e.g., Sealdah, Kolkata coordinates) if the browser fails to get location
+          setLocation({ lat: 22.5700, long: 88.3697 }); // Default Sealdah coordinates
+        }
+      );
+    } else { // If the user's browser does not support geolocation
+      alert("Geolocation is not supported by this browser. Using default location (Sealdah)."); // Inform the user
+      setLoadingLocation(false);
+      setLocation({ lat: 22.5700, long: 88.3697 }); // Default Sealdah coordinates
+    }
+  };
 
-  useEffect(() => {
-    getLocation();
-  }, []);
+  // useEffect hook: This hook runs code after the component renders.
+  // With an empty dependency array ([]), it runs only once after the initial render (similar to componentDidMount in class components).
+  useEffect(() => {
+    getLocation(); // Call getLocation when the component first loads to try and get user's location
+  }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      if (isRegister) {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-        await api.post('/auth/register', {
-          uid: user.uid,
-          email, password, name, contact, shop_name: shopName, location,
-        });
-        alert('Registration successful! You can now log in.');
-        setIsRegister(false);
-      } else {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-        const idToken = await user.getIdToken();
-        localStorage.setItem('idToken', idToken);
-        alert('Login successful!');
-        navigate('/dashboard');
-      }
-    } catch (error) {
-      console.error('Authentication error:', error.message);
-      alert(`Error: ${error.message}`);
-    }
-  };
+  // Handles the form submission for both user registration and login
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // Prevent the default browser page refresh on form submission
+    try {
+      if (isRegister) { // Logic for user registration
+        // 1. Register user with Firebase Authentication (client-side)
+        // This creates an account for the user in Firebase's authentication system.
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user; // Get the user object from Firebase (contains UID, email, etc.)
+        // The 'api.post' call below will handle getting the ID token automatically via the Axios interceptor you set up.
 
-  return (
-    <div className="flex-center" style={{ flexDirection: 'column', height: '100vh', backgroundColor: '#f3f4f6' }}> {/* Simple flex center, full height */}
-      <div className="card" style={{ width: '380px', textAlign: 'center' }}> {/* Basic card style, fixed width, centered text */}
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '20px' }}>
-          {isRegister ? 'Register' : 'Login'} to Saathi Bazaar
-        </h2>
-        <form onSubmit={handleSubmit}>
-          {isRegister && (
-            <>
-              <input type="text" placeholder="Your Name" value={name} onChange={(e) => setName(e.target.value)} required />
-              <input type="text" placeholder="Contact Number" value={contact} onChange={(e) => setContact(e.target.value)} required />
-              <input type="text" placeholder="Shop Name" value={shopName} onChange={(e) => setShopName(e.target.value)} required />
-              <div style={{ marginBottom: '15px', fontSize: '0.875rem', color: '#6b7280' }}>
-                <span style={{ display: 'block' }}>Your Location: {loadingLocation ? 'Fetching...' : `${location.lat.toFixed(4)}, ${location.long.toFixed(4)}`}</span>
-                <button type="button" onClick={getLocation} style={{ background: 'none', border: 'none', color: '#3b82f6', textDecoration: 'underline', padding: '0', cursor: 'pointer', display: 'inline-block', width: 'auto', marginBottom: '0' }}>Recalibrate Location</button>
-              </div>
-            </>
-          )}
-          <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-          <button type="submit" style={{ width: '100%', padding: '10px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '1rem' }}>
-            {isRegister ? 'Register' : 'Login'}
-          </button>
-        </form>
-        <p style={{ marginTop: '20px', fontSize: '0.875rem' }}>
-          {isRegister ? 'Already have an account?' : 'Need an account?'}{' '}
-          <button onClick={() => setIsRegister(!isRegister)} style={{ background: 'none', border: 'none', color: '#3b82f6', textDecoration: 'underline', padding: '0', cursor: 'pointer', width: 'auto', marginBottom: '0' }}>
-            {isRegister ? 'Login here' : 'Register here'}
-          </button>
-        </p>
-      </div>
-    </div>
-  );
+        // 2. Send additional user data to your Node.js backend to save in MongoDB
+        // This uses your 'api' instance to send a POST request to the '/auth/register' endpoint.
+        // The backend will then store this user's details (name, contact, shop name, location) in MongoDB.
+        await api.post('/auth/register', {
+          uid: user.uid, // Pass Firebase User ID (UID) to link accounts in MongoDB
+          email, // Optional: Pass email if your backend schema includes it
+          password, // Optional: Pass password if your backend needs it, though it's less common for registration
+          name, contact, shop_name: shopName, location,
+        });
+        alert('Registration successful! You can now log in.'); // Show a success message to the user
+        setIsRegister(false); // After successful registration, automatically switch the form to login mode
+      } else { // Logic for user login
+        // 1. Log in user with Firebase Authentication (client-side)
+        // This authenticates the user against Firebase's system.
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user; // Get the user object from Firebase
+        const idToken = await user.getIdToken(); // Get the ID token (important for authenticating subsequent requests)
+
+        // --- IMPORTANT CHANGES BELOW ---
+        // 2. Call your backend's login route to get the MongoDB _id
+        // The backend will verify idToken (sent via Axios interceptor) and return userId in response
+        const res = await api.post('/auth/login', { idToken }); // Pass idToken in body for this specific login endpoint's needs
+                                                                // Axios interceptor also adds it to headers.
+
+        // 3. Store both the idToken and the MongoDB userId in local storage
+        localStorage.setItem('idToken', idToken); // Store Firebase ID token
+        localStorage.setItem('userId', res.data.userId); // <<<<< NEW: Store MongoDB userId returned from backend
+        // --- END IMPORTANT CHANGES ---
+
+        alert('Login successful!'); // Show a success message
+        navigate('/dashboard'); // Navigate the user to the main dashboard page after successful login
+      }
+    } catch (error) { // Catch any errors that occur during Firebase authentication or API calls
+      console.error('Authentication error:', error.message); // Log the error to the console for debugging
+      alert(`Error: ${error.message}`); // Display a user-friendly error message to the user
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-100"> {/* Outer container: sets minimum height to fill screen, uses flexbox to center content, light gray background */}
+      <div className="bg-white p-8 rounded shadow-md w-96"> {/* Inner container (the card): white background, padding, rounded corners, shadow, fixed width */}
+        <h2 className="text-2xl font-bold mb-4 text-center">
+          {isRegister ? 'Register' : 'Login'} to Saathi Bazaar {/* Dynamic heading based on whether it's register or login mode */}
+        </h2>
+        <form onSubmit={handleSubmit}> {/* The HTML form for submission */}
+          {isRegister && ( // Conditional rendering: These fields are only shown if 'isRegister' is true (registration mode)
+            <>
+              <input type="text" placeholder="Your Name" value={name} onChange={(e) => setName(e.target.value)} className="w-full p-2 mb-3 border rounded" required />
+              <input type="text" placeholder="Contact Number" value={contact} onChange={(e) => setContact(e.target.value)} className="w-full p-2 mb-3 border rounded" required />
+              <input type="text" placeholder="Shop Name" value={shopName} onChange={(e) => setShopName(e.target.value)} className="w-full p-2 mb-3 border rounded" required />
+              {/* Location display: Shows fetched location or "Fetching..." message */}
+              <div className="mb-3">
+                <span className="block text-sm text-gray-600">Your Location: {loadingLocation ? 'Fetching...' : `${location.lat.toFixed(4)}, ${location.long.toFixed(4)}`}</span>
+                <button type="button" onClick={getLocation} className="text-sm text-blue-500 hover:underline">Recalibrate Location</button> {/* Button to re-fetch location */}
+              </div>
+            </>
+          )}
+          {/* Common fields for both register and login */}
+          <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-2 mb-3 border rounded" required />
+          <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-2 mb-3 border rounded" required />
+          <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+            {isRegister ? 'Register' : 'Login'} {/* Dynamic button text */}
+          </button>
+        </form>
+        <p className="mt-4 text-center">
+          {isRegister ? 'Already have an account?' : 'Need an account?'}{' '}
+          <button onClick={() => setIsRegister(!isRegister)} className="text-blue-500 hover:underline">
+            {isRegister ? 'Login here' : 'Register here'} {/* Button to toggle between register/login forms */}
+          </button>
+        </p>
+      </div>
+    </div>
+  );
 }
-export default Auth;
+export default Auth; // Exports the Auth component for use in App.jsx here is my auth.jsx
