@@ -34,7 +34,7 @@ function Header() {
             <li><Link to="/vendor-to-vendor" style={{ color: 'white', textDecoration: 'none', marginLeft: '1rem' }}>P2P Surplus</Link></li>
             <li><Link to="/mandis" style={{ color: 'white', textDecoration: 'none', marginLeft: '1rem' }}>Mandis</Link></li>
             <li><Link to="/bulk-purchase" style={{ color: 'white', textDecoration: 'none', marginLeft: '1rem' }}>Bulk Buy</Link></li>
-            <li><Link to="/chatbot" style={{ color: 'white', textDecoration: 'none', marginLeft: '1rem' }}>AI Chat</Link></li>
+            <li><Link to="/chatbot" style={{ color: 'white', textDecoration: 'none', marginLeft: '1rem' }}>Bazaar Guru</Link></li>
             
             {/* --- "My Cart" Link in Header --- */}
             <li>

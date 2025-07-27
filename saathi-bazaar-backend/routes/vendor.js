@@ -61,7 +61,7 @@ module.exports = (auth) => { // This function receives the 'auth' object (Fireba
         location: user.location, // Uses the vendor's registered location for the surplus item's location
         type: 'surplus', // Marks this product as a 'surplus' item
         status: 'available' // Set initial status as 'available'
-        // >>>>>>> `createdAt: admin.firestore.FieldValue.serverTimestamp()` WAS REMOVED HERE TO FIX THE VALIDATION ERROR <<<<<<<
+        // `createdAt: admin.firestore.FieldValue.serverTimestamp()` WAS REMOVED HERE TO FIX THE VALIDATION ERROR
         // The Mongoose Product model (models/Product.js) has `default: Date.now` for `createdAt`, so it automatically handles timestamp creation.
       });
       console.log('DEBUG (Backend POST): Attempting to save new product:', newProduct); // <<< ADDED DEBUG LOG: Shows the product data before saving
@@ -123,10 +123,33 @@ module.exports = (auth) => { // This function receives the 'auth' object (Fireba
 
   // --- Bulk Purchase Endpoints ---
 
-  // GET /api/vendor/bulk-orders: Get a list of all active (open) bulk orders
+  // GET /api/vendor/bulk-orders: Get a list of all active (open) or fulfilled bulk orders
   router.get('/bulk-orders', verifyToken, async (req, res) => {
     try {
-      const bulkOrders = await BulkOrder.find({ status: 'open' }); // Finds all bulk orders with 'open' status in MongoDB
+      // Find all bulk orders with 'open' OR 'fulfilled' status in MongoDB.
+      const rawBulkOrders = await BulkOrder.find({ status: { $in: ['open', 'fulfilled'] } }); // <<< IMPORTANT FIX: Fetch both 'open' and 'fulfilled'
+      
+      // Map _id to id (as a string) and ensure data is clean for frontend
+      const bulkOrders = rawBulkOrders.map(order => ({
+          id: order._id.toString(), // Convert ObjectId to string and map to 'id'
+          itemName: order.itemName,
+          unit: order.unit,
+          clusterLocation: order.clusterLocation,
+          current_qty: order.current_qty,
+          target_qty: order.target_qty,
+          // Ensure deadline is a Date object for frontend processing (it should be from Mongoose)
+          deadline: order.deadline,
+          status: order.status,
+          individualPrice: order.individualPrice,
+          bulkPrice: order.bulkPrice,
+          contributions: order.contributions ? order.contributions.map(c => ({ // Ensure contributions are mapped and valid
+                vendorId: c.vendorId.toString(), // Convert vendorId to string
+                quantity: c.quantity,
+                contributedAt: c.contributedAt
+            })) : [], // Provide an empty array if contributions is null/undefined
+      }));
+
+      console.log('DEBUG (Backend GET /bulk-orders): Filtered bulk orders sent to frontend:', bulkOrders); // Add debug log
       res.status(200).send(bulkOrders); // Sends the list of bulk orders
     } catch (error) {
       console.error('Error getting bulk orders:', error.message);
@@ -138,7 +161,7 @@ module.exports = (auth) => { // This function receives the 'auth' object (Fireba
   router.post('/bulk-orders/contribute', verifyToken, async (req, res) => {
     const { bulkOrderId, quantity } = req.body; // Gets the ID of the bulk order and the quantity to contribute
     try {
-      const bulkOrder = await BulkOrder.findById(bulkOrderId); // Finds the specific bulk order by its MongoDB _id
+      const bulkOrder = await BulkOrder.findById(bulkOrderId); // Find the specific bulk order by its MongoDB _id
 
       if (!bulkOrder || bulkOrder.status !== 'open') {
         return res.status(400).send({ error: 'Bulk order not found or not open for contribution.' }); // Error if order doesn't exist or is closed
@@ -165,6 +188,49 @@ module.exports = (auth) => { // This function receives the 'auth' object (Fireba
       res.status(500).send({ error: 'Failed to contribute to bulk order: ' + error.message });
     }
   });
+
+  // DELETE /api/vendor/bulk-orders/cancel-contribution: Allows a vendor to cancel their contribution
+  // This route is used by the frontend when a vendor cancels their contribution.
+  router.delete('/bulk-orders/cancel-contribution', verifyToken, async (req, res) => {
+    const { bulkOrderId } = req.body; // Get the ID of the bulk order from the request body
+    try {
+      const bulkOrder = await BulkOrder.findById(bulkOrderId); // Find the specific bulk order
+
+      if (!bulkOrder) {
+        return res.status(404).send({ error: 'Bulk order not found.' });
+      }
+      if (bulkOrder.status !== 'open') {
+          return res.status(400).send({ error: 'Bulk order is not open and cannot be cancelled.' }); // Can only cancel if order is 'open'
+      }
+
+      // Find the specific contribution by the current user
+      const contributionIndex = bulkOrder.contributions.findIndex(
+        // Ensure vendorId is correctly converted to string for comparison
+        c => c.vendorId && c.vendorId.toString() === req.userId.toString()
+      );
+
+      if (contributionIndex === -1) {
+        return res.status(404).send({ error: 'Your contribution not found for this order.' }); // If user's contribution isn't found
+      }
+
+      const cancelledQty = bulkOrder.contributions[contributionIndex].quantity; // Get quantity that was contributed
+
+      // Remove the contribution from the array
+      bulkOrder.contributions.splice(contributionIndex, 1);
+      // Decrement the current quantity of the bulk order
+      bulkOrder.current_qty -= cancelledQty;
+
+      await bulkOrder.save(); // Save the updated bulk order document to MongoDB
+
+      console.log(`DEBUG (Backend DELETE): Contribution of ${cancelledQty} to ${bulkOrderId} cancelled by user ${req.userId}.`);
+      res.status(200).send({ message: 'Contribution cancelled successfully!', cancelledQty }); // Send success message
+
+    } catch (error) {
+      console.error('Error cancelling contribution:', error.message);
+      res.status(500).send({ error: 'Failed to cancel contribution: ' + error.message });
+    }
+  });
+
 
   return router; // Returns the configured router to be used by server.js
 };

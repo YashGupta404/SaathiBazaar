@@ -1,86 +1,128 @@
-// saathi-bazaar-backend/routes/chat.js
-const express = require('express'); // Imports Express to create routes
-const { GoogleGenerativeAI } = require('@google/generative-ai'); // Google's AI library for Gemini
+const express = require('express');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-// Import MongoDB models to fetch real-time context for the AI
-const BulkOrder = require('../models/BulkOrder'); // For bulk order context
-const MandiWholesaler = require('../models/MandiWholesaler'); // For mandi shop context
+const BulkOrder = require('../models/BulkOrder');
+const MandiWholesaler = require('../models/MandiWholesaler');
+const Product = require('../models/Product');
+const User = require('../models/User');
 
-// Access your Gemini API Key from your .env file and initialize the AI model
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY); // Uses API key from .env
-const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-module.exports = (auth) => { // 'auth' object from Firebase Admin SDK (passed from server.js)
-  const router = express.Router(); // Creates an Express Router
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
-  // Middleware (optional, if you want chat to require login)
+module.exports = (auth) => {
+  const router = express.Router();
+
   const verifyToken = async (req, res, next) => {
     const idToken = req.headers.authorization?.split('Bearer ')[1];
     if (!idToken) return res.status(401).send({ error: 'Unauthorized' });
     try {
-      await auth.verifyIdToken(idToken); // Verifies the user's login token
+      await auth.verifyIdToken(idToken);
       next();
     } catch (error) {
       res.status(401).send({ error: 'Invalid token' });
     }
   };
 
-  // POST /api/chat/ask: Endpoint for asking the AI assistant a question
-  router.post('/ask', verifyToken, async (req, res) => { // Add verifyToken if you want chat to be authenticated
-    const { prompt } = req.body; // The user's question (prompt) from the frontend
+  // ✅ FIXED block
+  router.post('/ask', verifyToken, async (req, res) => {
+    const { prompt } = req.body;
+    let context = "";
+    let systemInstructions = `You are Bazaar Guru, an expert, helpful, and concise AI assistant specifically designed for street food vendors in India using the Saathi Bazaar app.
+
+**Your Goal:** Provide accurate and practical advice on:
+- How to start a street food stall (legal procedures, licenses, basic needs)
+- Raw material sourcing (prices, best practices, quality, finding suppliers)
+- Functions and features of the Saathi Bazaar app (P2P surplus, Mandi directory, Bulk Buy, Cart, Profile)
+- General business tips for street vendors (hygiene, customer service, pricing strategy)
+- Current market trends or simple weather impacts (if data is provided).
+
+**Instructions:**
+1.  **Prioritize provided context:** If "Current Saathi Bazaar Data (Context)" is given, use it specifically to answer questions about items, orders, or shops within the app.
+2.  **Act as an expert:** Provide helpful, actionable advice.
+3.  **Concise and Clear:** Keep answers brief and easy to understand for vendors.
+4.  **Language:** If the vendor asks in Hindi or Bengali, try to respond in that language. Otherwise, respond in clear English.
+5.  **Limitations:** If the provided context doesn't contain enough information for a specific factual question (e.g., specific market rates outside your data, very precise legal advice for a specific city, or real-time weather not provided), state that your knowledge is based on the system's current data or general information, and suggest contacting a local authority or checking a dedicated app for real-time information.
+`;
+
     try {
-      let context = ""; // This variable will dynamically hold relevant data from your app's database to give context to the AI
+      const lowerCasePrompt = prompt.toLowerCase();
 
-      // --- CONTEXTUAL AI LOGIC (CRITICAL FOR HACKATHON DEMO) ---
-      // This part analyzes the user's question (prompt) and fetches relevant data from MongoDB
-      // to provide to the AI as context. This makes the AI's answers more specific and useful.
-
-      // Example 1: If the prompt asks about 'tomatoes' and 'bulk offers'
-      if (prompt.toLowerCase().includes('tomato') && prompt.toLowerCase().includes('bulk')) {
-        const bulkTomatoes = await BulkOrder.find({ itemName: 'Tomato', status: 'open' }).limit(1); // Find one open bulk order for tomatoes
-        if (bulkTomatoes.length > 0) {
-          const offer = bulkTomatoes[0];
-          context += "\n\n--- Current Saathi Bazaar Data (Context) ---\n";
-          context += `Open Bulk Order for Tomatoes in ${offer.clusterLocation}:\n`;
-          context += `- Current Quantity: ${offer.current_qty} ${offer.unit}\n`;
-          context += `- Target Quantity: ${offer.target_qty} ${offer.unit}\n`;
-          context += `- Bulk Price: Rs ${offer.bulkPrice} per ${offer.unit} (Individual: Rs ${offer.individualPrice})\n`;
-          context += `- Deadline: ${new Date(offer.deadline).toLocaleString()}\n`;
-          context += "-------------------------------------------\n\n";
+      // Bulk Orders Context
+      if (lowerCasePrompt.includes('bulk') || lowerCasePrompt.includes('group order') || lowerCasePrompt.includes('discount')) {
+        const bulkOrders = await BulkOrder.find({ status: 'open' }).limit(3);
+        context += "\n\n--- Current Saathi Bazaar Bulk Orders ---\n";
+        if (bulkOrders.length > 0) {
+          bulkOrders.forEach(offer => {
+            context += `- Item: ${offer.itemName}, Cluster: ${offer.clusterLocation}, Current: ${offer.current_qty}/${offer.target_qty} ${offer.unit}, Bulk Price: Rs ${offer.bulkPrice}/${offer.unit}, Deadline: ${new Date(offer.deadline).toLocaleDateString()}\n`;
+          });
+        } else {
+          context += "No active bulk orders currently available in the system.\n";
         }
+        context += "-------------------------------------------\n\n";
       }
-      // Example 2: If the prompt asks about a "shop in Sealdah"
-      if (prompt.toLowerCase().includes('sealdah') && prompt.toLowerCase().includes('shop')) {
-          const sealdahMandi = await MandiWholesaler.findOne({ shopName: /sealdah/i }); // Search for a mandi shop with "sealdah" in its name (case-insensitive)
-          if (sealdahMandi) {
-              context += "\n\n--- Current Saathi Bazaar Data (Context) ---\n";
-              context += `Found Mandi Shop: ${sealdahMandi.shopName} (Contact: ${sealdahMandi.contact})\n`;
-              context += `Products: ${sealdahMandi.products_offered.map(p => p.name).join(', ')}\n`;
-              context += "-------------------------------------------\n\n";
-          }
+
+      // Mandi Shops Context
+      if (lowerCasePrompt.includes('mandi') || lowerCasePrompt.includes('shop') || lowerCasePrompt.includes('supplier')) {
+        const mandis = await MandiWholesaler.find().limit(2);
+        context += "\n\n--- Saathi Bazaar Mandi Shops (Directory) ---\n";
+        if (mandis.length > 0) {
+          mandis.forEach(mandi => {
+            context += `- Shop: ${mandi.shopName}, Contact: ${mandi.contact}, Description: ${mandi.description}\n`;
+            if (mandi.products_offered?.length > 0) {
+              context += `  - Top Products: ${mandi.products_offered.slice(0, 2).map(p => p.name).join(', ')}\n`;
+            }
+          });
+        } else {
+          context += "No mandi shops currently listed in the system.\n";
+        }
+        context += "-----------------------------------------------\n\n";
       }
-      // You can add more conditions here for other items or types of queries you want the AI to respond to intelligently
-      // (e.g., specific surplus items, general hygiene advice, etc.).
 
-      // This is the full instruction (prompt) that will be sent to the Google Gemini AI model.
-      // It includes system instructions and the user's question, plus any relevant context from your database.
-      const fullPrompt = `You are Saathi AI Assistant, a helpful, friendly, and concise assistant for street food vendors in India. Your primary goal is to help them with their raw material sourcing questions, using the provided context if available. If a question is in Hindi or Bengali, try to respond in that language. Otherwise, respond in English. If context is provided below, use it to give specific answers. If the context doesn't have the answer to a factual question, state that you can only provide information from the system's data and suggest contacting suppliers directly or using general knowledge.
+      // Surplus Items
+      if (lowerCasePrompt.includes('surplus') || lowerCasePrompt.includes('extra items') || lowerCasePrompt.includes('other vendors')) {
+        const surplusItems = await Product.find({ type: 'surplus', status: 'available' }).limit(2);
+        context += "\n\n--- Saathi Bazaar Surplus Items (P2P) ---\n";
+        if (surplusItems.length > 0) {
+          surplusItems.forEach(item => {
+            context += `- Item: ${item.name}, Qty: ${item.quantity} ${item.unit}, Price: Rs ${item.price}, Listed by: ${item.listedByShop || item.listedByName}\n`;
+          });
+        } else {
+          context += "No surplus items currently listed by other vendors.\n";
+        }
+        context += "------------------------------------------\n\n";
+      }
 
-      Vendor's Question: "${prompt}"
+      // App Function Context
+      if (lowerCasePrompt.includes('app function') || lowerCasePrompt.includes('how to use') || lowerCasePrompt.includes('what can you do')) {
+        context += "\n\n--- Saathi Bazaar App Functions ---\n";
+        context += "1. Vendor-to-Vendor Surplus Exchange\n";
+        context += "2. Mandi Shop Directory\n";
+        context += "3. Bulk Buy Scheme\n";
+        context += "4. AI Chatbot (Bazaar Guru)\n";
+        context += "------------------------------------\n\n";
+      }
 
-      ${context}
-
-      Answer: `;
-
-      const result = await model.generateContent(fullPrompt); // Sends the comprehensive prompt to Gemini AI
-      const response = await result.response;
-      const text = response.text(); // Gets the AI's generated textual response
-
-      res.status(200).send({ answer: text }); // Sends the AI's answer back to the frontend
-    } catch (error) {
-      console.error('Error with AI chat:', error.message);
-      res.status(500).send({ error: 'Failed to get response from AI.' });
+    } catch (dbError) {
+      console.error('Error fetching context from MongoDB:', dbError.message);
+      context += "\n\n--- Note: Could not retrieve real-time app data due to a database issue. ---\n\n";
     }
-  });
 
-  return router; // Return the configured router to be used in server.js
+    const fullPrompt = `${systemInstructions}\n\nVendor's Question: "${prompt}"\n\n${context}Answer: `;
+
+    console.log('DEBUG: Full prompt sent to Gemini AI:', fullPrompt);
+
+    try {
+      const result = await model.generateContent(fullPrompt);
+      const response = await result.response;
+      const text = response.text();
+
+      console.log('DEBUG: Gemini AI raw response:', text);
+      res.status(200).send({ answer: text });
+    } catch (aiError) {
+      console.error('Error with AI chat (Gemini API or other):', aiError.message);
+      res.status(500).send({ error: 'Failed to get response from Bazaar Guru. Please try again later.' });
+    }
+  }); // ✅ <--- This closes the router.post function properly
+
+  return router;
 };
